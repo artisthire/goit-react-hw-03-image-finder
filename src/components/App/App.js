@@ -1,13 +1,27 @@
-import { Wrapper, Container } from './App.styled';
+import { Component } from 'react';
+import { Wrapper } from './App.styled';
+import Searchbar from 'components/Searchbar';
+import ImageGallery from 'components/ImageGallery';
 
-const App = () => {
-  return (
-    <Wrapper>
-      <Container>React homework template</Container>
-    </Wrapper>
-  );
-};
+class App extends Component {
+  state = {
+    filter: '',
+  };
 
-// for test 2
+  handleFilterChange = filter => {
+    this.setState({ filter });
+  };
+
+  render() {
+    const filter = this.state.filter.trim().toLowerCase();
+
+    return (
+      <Wrapper>
+        <Searchbar onFiterChange={this.handleFilterChange}></Searchbar>
+        <ImageGallery filter={filter}></ImageGallery>
+      </Wrapper>
+    );
+  }
+}
 
 export default App;
