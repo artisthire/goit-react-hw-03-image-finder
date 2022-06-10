@@ -34,11 +34,12 @@ export const Button = styled.button`
   width: 48px;
   height: 48px;
   border: 0;
+  font-size: 1em;
+  line-height: 1.2;
   background-color: transparent;
   opacity: 0.6;
   transition: opacity 250ms cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
-  outline: none;
 
   & > svg {
     position: absolute;
@@ -71,7 +72,7 @@ export const Input = styled.input`
   width: 100%;
   font: inherit;
   font-size: 20px;
-  line-height: 1.2;
+  line-height: 1.4;
   border: none;
   outline: none;
   padding-left: 4px;
