@@ -1,7 +1,7 @@
 import { Component } from 'react';
 import { nanoid } from 'nanoid';
 import PropTypes from 'prop-types';
-import { ImSearch } from 'react-icons/im';
+import { IoIosSearch } from 'react-icons/io';
 import { Container, Form, Button, Label, Input } from './Searchbar.styled';
 
 class Searchbar extends Component {
@@ -40,7 +40,7 @@ class Searchbar extends Component {
             aria-label="Search"
             disabled={this.props.isLoading}
           >
-            <ImSearch />
+            <IoIosSearch />
           </Button>
           <Label htmlFor={this.inputId}>Search images and photos</Label>
           <Input

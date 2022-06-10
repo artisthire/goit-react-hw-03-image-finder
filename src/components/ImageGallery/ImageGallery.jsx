@@ -1,12 +1,13 @@
 import { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Container, GalleryList } from './ImageGallery.styled';
+import { Container, GalleryList, ImgModal } from './ImageGallery.styled';
 
 import serverAPI from 'services/api';
 import ImageGalleryItem from 'components/ImageGallery/ImageGalleryItem';
 import Button from 'components/ImageGallery/Button';
 import Loading from 'components/Loading';
 import Notification from 'components/Notification';
+import Modal from 'components/Modal';
 
 const STATUS = {
   IDLE: 'idle',
@@ -20,8 +21,14 @@ class ImageGallery extends Component {
     hits: [],
     totalHits: 0,
     currentPage: 1,
+    showModal: false,
     status: STATUS.IDLE,
     error: null,
+  };
+
+  modalImgData = {
+    src: '',
+    alt: '',
   };
 
   componentDidUpdate(prevProps) {
@@ -40,10 +47,23 @@ class ImageGallery extends Component {
     this.setState({ currentPage: nextPage });
   };
 
+  handleToggleModal = () => {
+    this.setState(prevState => ({
+      showModal: !prevState.showModal,
+    }));
+  };
+
+  handleFullImageShow = (src, alt) => {
+    return () => {
+      this.modalImgData = { src, alt };
+      this.handleToggleModal();
+    };
+  };
+
   getImages({ page, filter }) {
     this.setState({ status: STATUS.PEDDING });
-    this.props.onLoading(true);
-    const { imagesPerPage } = this.props;
+    const { imagesPerPage, onLoading } = this.props;
+    onLoading(true);
 
     serverAPI
       .getData(filter, page, imagesPerPage)
@@ -55,7 +75,7 @@ class ImageGallery extends Component {
         }))
       )
       .catch(error => this.setState({ error, status: STATUS.REJECT }))
-      .finally(() => this.props.onLoading(false));
+      .finally(() => onLoading(false));
   }
 
   haveMoreImages() {
@@ -67,20 +87,24 @@ class ImageGallery extends Component {
   }
 
   render() {
-    const { status, error, hits } = this.state;
+    const { status, error, hits, showModal } = this.state;
+    const { src: modalImgSrc, alt: modalImgAlt } = this.modalImgData;
     const isMoreImages = this.haveMoreImages();
 
     return (
       <Container>
         <GalleryList>
-          {hits.map(hit => (
-            <ImageGalleryItem
-              key={hit.id}
-              src={hit.webformatURL}
-              srcFullImg={hit.largeImageURL}
-              alt={hit.tags}
-            />
-          ))}
+          {hits.map(hit => {
+            const { id, tags, webformatURL, largeImageURL } = hit;
+            return (
+              <ImageGalleryItem
+                key={id}
+                src={webformatURL}
+                alt={tags}
+                onClick={this.handleFullImageShow(largeImageURL, tags)}
+              />
+            );
+          })}
         </GalleryList>
 
         {status === STATUS.RESOLVE && isMoreImages && (
@@ -90,6 +114,12 @@ class ImageGallery extends Component {
         {status === STATUS.PEDDING && <Loading />}
 
         {status === STATUS.REJECT && <Notification message={error.message} />}
+
+        {showModal && (
+          <Modal onClose={this.handleToggleModal}>
+            <ImgModal src={modalImgSrc} alt={modalImgAlt} />
+          </Modal>
+        )}
       </Container>
     );
   }

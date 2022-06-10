@@ -45,7 +45,8 @@ export const Button = styled.button`
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 50%;
+    width: 60%;
+    height: 60%;
     transform: translate(-50%, -50%);
     color: inherit;
   }
