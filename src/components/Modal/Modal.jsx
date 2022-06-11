@@ -34,6 +34,7 @@ class Modal extends Component {
       <Overlay onClick={this.handleOverlayClick}>
         <Container>
           {children}
+
           <CloseBtn type="button" onClick={onClose} aria-label="Close modal">
             <IoMdClose />
           </CloseBtn>
@@ -45,7 +46,7 @@ class Modal extends Component {
 }
 
 Modal.propTypes = {
-  children: PropTypes.node.isRequired,
+  children: PropTypes.node,
   onClose: PropTypes.func.isRequired,
 };
 

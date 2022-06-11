@@ -11,9 +11,9 @@ import Modal from 'components/Modal';
 
 const STATUS = {
   IDLE: 'idle',
-  PEDDING: 'pedding',
-  RESOLVE: 'resolve',
-  REJECT: 'reject',
+  PENDING: 'pending',
+  RESOLVED: 'resolved',
+  REJECTED: 'rejected',
 };
 
 class ImageGallery extends Component {
@@ -43,6 +43,7 @@ class ImageGallery extends Component {
 
   handleLoadMore = () => {
     const nextPage = this.state.currentPage + 1;
+
     this.getImages({ page: nextPage, filter: this.props.filter });
     this.setState({ currentPage: nextPage });
   };
@@ -53,16 +54,17 @@ class ImageGallery extends Component {
     }));
   };
 
-  handleFullImageShow = (src, alt) => {
+  handleImageModalShow = ({ src, alt }) => {
     return () => {
       this.modalImgData = { src, alt };
       this.handleToggleModal();
     };
   };
 
-  getImages({ page, filter }) {
-    this.setState({ status: STATUS.PEDDING });
+  getImages({ page = 1, filter }) {
     const { imagesPerPage, onLoading } = this.props;
+
+    this.setState({ status: STATUS.PENDING });
     onLoading(true);
 
     serverAPI
@@ -71,10 +73,10 @@ class ImageGallery extends Component {
         this.setState(prevState => ({
           hits: [...prevState.hits, ...data.hits],
           totalHits: data.totalHits,
-          status: STATUS.RESOLVE,
+          status: STATUS.RESOLVED,
         }))
       )
-      .catch(error => this.setState({ error, status: STATUS.REJECT }))
+      .catch(error => this.setState({ error, status: STATUS.REJECTED }))
       .finally(() => onLoading(false));
   }
 
@@ -96,24 +98,28 @@ class ImageGallery extends Component {
         <GalleryList>
           {hits.map(hit => {
             const { id, tags, webformatURL, largeImageURL } = hit;
+
             return (
               <ImageGalleryItem
                 key={id}
                 src={webformatURL}
                 alt={tags}
-                onClick={this.handleFullImageShow(largeImageURL, tags)}
+                onClick={this.handleImageModalShow({
+                  src: largeImageURL,
+                  alt: tags,
+                })}
               />
             );
           })}
         </GalleryList>
 
-        {status === STATUS.RESOLVE && isMoreImages && (
+        {status === STATUS.RESOLVED && isMoreImages && (
           <Button onLoadMore={this.handleLoadMore} />
         )}
 
-        {status === STATUS.PEDDING && <Loading />}
+        {status === STATUS.PENDING && <Loading />}
 
-        {status === STATUS.REJECT && <Notification message={error.message} />}
+        {status === STATUS.REJECTED && <Notification message={error.message} />}
 
         {showModal && (
           <Modal onClose={this.handleToggleModal}>

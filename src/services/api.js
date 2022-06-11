@@ -1,10 +1,9 @@
 const API_KEY = '27905247-52ff39917099ed7913d47ea34';
 const BASE_URL = `https://pixabay.com/api/?key=${API_KEY}&image_type=photo&orientation=horizontal`;
 
-const xhr = new XMLHttpRequest();
-xhr.responseType = 'json';
-
 async function getData(query, page = 1, perPage = 12) {
+  const xhr = new XMLHttpRequest();
+  xhr.responseType = 'json';
   xhr.open('GET', `${BASE_URL}&per_page=${perPage}&page=${page}&q=${query}`);
   xhr.send();
 

@@ -17,7 +17,7 @@ export const Container = styled.div`
   position: relative;
   width: calc(100vw - 48px);
   height: calc(100vh - 24px);
-  background-color: white;
+  background-color: #abbde9;
 `;
 
 export const CloseBtn = styled.button`
