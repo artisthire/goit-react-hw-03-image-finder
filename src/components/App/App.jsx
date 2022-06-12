@@ -24,15 +24,12 @@ class App extends Component {
 
     return (
       <Wrapper>
-        <Searchbar
-          onSubmit={this.handleFormSubmit}
-          isLoading={isLoading}
-        ></Searchbar>
+        <Searchbar onSubmit={this.handleFormSubmit} isLoading={isLoading} />
         <ImageGallery
           imagesPerPage={IMAGES_PER_PAGE}
           filter={filter}
           onLoading={this.handleLoading}
-        ></ImageGallery>
+        />
       </Wrapper>
     );
   }

@@ -52,7 +52,7 @@ class Searchbar extends Component {
             id={this.inputId}
             value={this.state.filter}
             onChange={this.handleChange}
-          ></Input>
+          />
         </Form>
       </Container>
     );
