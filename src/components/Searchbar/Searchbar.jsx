@@ -1,6 +1,7 @@
 import { Component } from 'react';
 import { nanoid } from 'nanoid';
 import PropTypes from 'prop-types';
+import toast from 'react-hot-toast';
 import { IoIosSearch } from 'react-icons/io';
 import { Container, Form, Button, Label, Input } from './Searchbar.styled';
 
@@ -23,7 +24,7 @@ class Searchbar extends Component {
       this.setState({ filter: '' });
 
       if (normalizedFilter === '') {
-        alert('Request cannot be empty');
+        toast.error('Request cannot be empty');
         return;
       }
 

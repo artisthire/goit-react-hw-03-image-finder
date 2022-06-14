@@ -14,11 +14,11 @@ async function getData(query, page = 1, perPage = 12) {
       throw new Error(`Not found for request: "${query}"`);
     }
 
-    return data;
+    return { totalImages: data.totalHits, images: data.hits };
   } catch (error) {
     if (error.code) {
       throw new Error(
-        `Something went wrong. Please try again later. Error: ${error.code}`
+        `Something went wrong. Please try again later.\nError: ${error.code}`
       );
     }
 

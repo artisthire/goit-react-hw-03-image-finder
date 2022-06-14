@@ -1,14 +1,30 @@
 import { Component } from 'react';
 import serverAPI from 'services/api';
+import toast, { Toaster } from 'react-hot-toast';
 
 import { Wrapper, Inner } from './App.styled';
 import Searchbar from 'components/Searchbar';
 import ImageGallery from 'components/ImageGallery';
-import Notification from 'components/Notification';
 import Button from 'components/Button';
 import Loading from 'components/Loading';
 
 const IMAGES_PER_PAGE = 12;
+
+const TOAST_OPTION = {
+  containerStyle: {
+    top: 120,
+  },
+
+  toastOptions: {
+    style: {
+      maxWidth: 500,
+      padding: 20,
+      fontSize: 18,
+      fontWeight: 600,
+      textAlign: 'center',
+    },
+  },
+};
 
 const STATUS = {
   IDLE: 'idle',
@@ -16,63 +32,73 @@ const STATUS = {
   RESOLVED: 'resolved',
   REJECTED: 'rejected',
 };
-
 class App extends Component {
   state = {
     filter: '',
-    hits: [],
-    totalHits: 0,
-    currentPage: 1,
+    images: [],
+    totalImages: 0,
+    page: 1,
     status: STATUS.IDLE,
-    error: null,
   };
 
   componentDidUpdate(_, prevState) {
-    const prevFilter = prevState.filter;
-    const newFilter = this.state.filter;
+    const { filter: prevFilter, page: prevPage } = prevState;
+    const { filter, page } = this.state;
 
-    if (newFilter && prevFilter !== newFilter) {
-      this.setState({ hits: [], totalHits: 0, currentPage: 1 });
-      this.getImages({ filter: newFilter });
+    if (prevFilter !== filter || prevPage !== page) {
+      this.getImages({ filter, page });
     }
   }
 
   handleFormSubmit = filter => {
-    this.setState({ filter });
+    this.setState({ filter, images: [], totalImages: 0, page: 1 });
   };
 
   handleLoadMore = () => {
-    const { currentPage, filter } = this.state;
-    const nextPage = currentPage + 1;
-
-    this.getImages({ page: nextPage, filter });
-    this.setState({ currentPage: nextPage });
+    this.setState(prevState => ({ page: prevState.page + 1 }));
   };
 
-  getImages({ filter, page = 1, perPage = IMAGES_PER_PAGE }) {
+  getImages({ filter, page, perPage = IMAGES_PER_PAGE }) {
     this.setState({ status: STATUS.PENDING });
 
     serverAPI
       .getData(filter, page, perPage)
       .then(data =>
         this.setState(prevState => ({
-          hits: [...prevState.hits, ...data.hits],
-          totalHits: data.totalHits,
+          images: [...prevState.images, ...data.images],
+          totalImages: data.totalImages,
           status: STATUS.RESOLVED,
         }))
       )
-      .catch(error => this.setState({ error, status: STATUS.REJECTED }));
+      .catch(error => {
+        this.setState({ status: STATUS.REJECTED });
+        toast.error(error.message);
+      });
   }
 
   haveMoreImages() {
-    const { currentPage, totalHits } = this.state;
-    const isMoreImages = totalHits - currentPage * IMAGES_PER_PAGE > 0;
+    const { page, totalImages } = this.state;
+    const isMoreImages = totalImages - page * IMAGES_PER_PAGE > 0;
 
     return isMoreImages;
   }
 
+  transformImagesData() {
+    const newImages = this.state.images.map(
+      ({ id, tags, webformatURL, largeImageURL }) => ({
+        id,
+        alt: tags,
+        smallImg: webformatURL,
+        fullImg: largeImageURL,
+      })
+    );
+
+    return newImages;
+  }
+
   render() {
-    const { hits, status, error } = this.state;
+    const { status } = this.state;
+    const images = this.transformImagesData();
     const isMoreImages = this.haveMoreImages() && status === STATUS.RESOLVED;
 
     return (
@@ -83,16 +109,14 @@ class App extends Component {
         />
 
         <Inner>
-          <ImageGallery images={hits} />
+          <ImageGallery images={images} />
 
           {isMoreImages && <Button onClick={this.handleLoadMore} />}
 
           {status === STATUS.PENDING && <Loading />}
-
-          {status === STATUS.REJECTED && (
-            <Notification message={error.message} />
-          )}
         </Inner>
+
+        <Toaster {...TOAST_OPTION} />
       </Wrapper>
     );
   }
